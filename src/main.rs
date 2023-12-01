@@ -32,16 +32,16 @@ fn main() {
 
     let to_run = get_day(day);
     if to_run.0 != nop {
-        println!("\n== Part 1 ==");
+        println!("\n== Part 1");
         let ts = time::Instant::now();
         to_run.0(input.clone());
-        println!("Time elapsed: {}ms", ts.elapsed().as_millis());
+        println!("== {}ms", ts.elapsed().as_millis());
     }
     if to_run.1 != nop {
-        println!("\n== Part 2 ==");
+        println!("\n== Part 2");
         let ts = time::Instant::now();
         to_run.1(input.clone());
-        println!("Time elapsed: {}ms", ts.elapsed().as_millis());
+        println!("== {}ms", ts.elapsed().as_millis());
     }
     println!("\n== Done ==");
 }
