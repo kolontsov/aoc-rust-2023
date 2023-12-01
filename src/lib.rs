@@ -6,7 +6,7 @@ pub fn nop(_inp: String) {}
 
 pub fn get_day(day: u32) -> (DayFn, DayFn) {
     return match day {
-        1 => (day01::part1, nop),
+        1 => (day01::part1, day01::part2),
         _ => {
             println!("Unknown day: {}", day);
             return (nop, nop);
