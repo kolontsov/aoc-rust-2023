@@ -2,91 +2,98 @@ const MAX_RED: u32 = 12;
 const MAX_GREEN: u32 = 13;
 const MAX_BLUE: u32 = 14;
 
-pub fn part1(input: String) {
-    let mut sum = 0;
+enum Color { Red, Green, Blue }
 
-    // Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-    for line in input.lines() {
-        let mut iter = line.split_whitespace();
-        iter.next();
-        let game_num = iter.next().unwrap().trim_end_matches(':').parse::<u32>().unwrap();
-        println!("Game {}", game_num);
-        
-        let mut game_str = String::new();
-        for word in iter {
-            game_str.push_str(word);
-            game_str.push(' ');
-        }
+struct Cube {
+    color: Color,
+    num: u32,
+}
+
+type Round = Vec<Cube>;
+
+struct Game {
+    num: u32,
+    rounds: Vec<Round>,
+}
+
+fn parse_color(s: &str) -> Color {
+    match s {
+        "red" => Color::Red,
+        "green" => Color::Green,
+        "blue" => Color::Blue,
+        _ => panic!("Unknown color {}", s)
+    }
+}
+
+fn parse_cube(s: &str) -> Cube {
+    let mut iter = s.split_whitespace();
+    let num = iter.next().unwrap().parse::<u32>().unwrap();
+    let color = parse_color(iter.next().unwrap());
+    Cube { color, num }
+}
+
+fn parse_round(input: &str) -> Round {
+    input.split(',')
+        .map(parse_cube)
+        .collect()
+}
+
+fn parse_game(input: &str) -> Game {
+    let (num_part, rounds_part) = input.split_once(": ").unwrap();
+    let num = num_part.split_whitespace().last().unwrap().parse::<u32>().unwrap();
+    let rounds = rounds_part.split(';')
+        .map(parse_round)
+        .collect();
+    Game { num, rounds }
+}
+
+fn parse_games(input: &str) -> Vec<Game> {
+    input.lines()
+        .map(parse_game)
+        .collect()
+}
+
+
+pub fn part1(input: String) {
+    let games = parse_games(&input);
+
+    let mut sum = 0;
+    for game in games.iter() {
         let mut game_ok = true;
-        for (idx, round) in game_str.split(';').enumerate() {
-            println!("  Round {}", idx);
-            for cube in round.split(',') {
-                let mut iter = cube.split_whitespace();
-                let num = iter.next().unwrap().parse::<u32>().unwrap();
-                let color = iter.next().unwrap();
-                match color {
-                    "red" => {
-                        if num > MAX_RED { game_ok = false; }
-                    },
-                    "green" => {
-                        if num > MAX_GREEN { game_ok = false; }
-                    },
-                    "blue" => {
-                        if num > MAX_BLUE { game_ok = false; }
-                    },
-                    _ => {
-                        println!("Unknown color: {}", color);
-                        std::process::exit(1);
-                    }
+        for round in game.rounds.iter() {
+            for cube in round.iter() {
+                match cube.color {
+                    Color::Red => { if cube.num > MAX_RED { game_ok = false; } },
+                    Color::Green => { if cube.num > MAX_GREEN { game_ok = false; } }
+                    Color::Blue => { if cube.num > MAX_BLUE { game_ok = false; } },
                 }
-//                println!("  - {} {}", num, color);
             }
         }
         if game_ok {
-            sum += game_num;
+            sum += game.num;
         }
     }
     println!("TOTAL: {}", sum);
 }
 
 pub fn part2(input: String) {
-    let mut sum = 0;
+    let games = parse_games(&input);
 
-    // Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-    for line in input.lines() {
-        let mut iter = line.split_whitespace();
-        iter.next();
-        let game_num = iter.next().unwrap().trim_end_matches(':').parse::<u32>().unwrap();
-        println!("Game {}", game_num);
-        
-        let mut game_str = String::new();
-        for word in iter {
-            game_str.push_str(word);
-            game_str.push(' ');
-        }
+    let mut sum = 0;
+    for game in games.iter() {
         let mut min_red = 0;
         let mut min_green = 0;
         let mut min_blue = 0;
-        for (idx, round) in game_str.split(';').enumerate() {
-            println!("  Round {}", idx);
-            for cube in round.split(',') {
-                let mut iter = cube.split_whitespace();
-                let num = iter.next().unwrap().parse::<u32>().unwrap();
-                let color = iter.next().unwrap();
-                match color {
-                    "red" => { if num > min_red { min_red = num; } },
-                    "green" => { if num > min_green { min_green = num; } },
-                    "blue" => { if num > min_blue { min_blue = num; } },
-                    _ => {
-                        println!("Unknown color: {}", color);
-                        std::process::exit(1);
-                    }
+        for round in game.rounds.iter() {
+            for cube in round.iter() {
+                match cube.color {
+                    Color::Red => { if cube.num > min_red { min_red = cube.num; } },
+                    Color::Green => { if cube.num > min_green { min_green = cube.num; } },
+                    Color::Blue => { if cube.num > min_blue { min_blue = cube.num; } },
                 }
-                //println!("  - {} {}", num, color);
             }
         }
-        let power = min_red*min_green*min_blue;
-        sum += power;
+        sum += min_red*min_green*min_blue;
     }
     println!("TOTAL: {}", sum);
 }
