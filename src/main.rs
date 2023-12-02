@@ -50,6 +50,11 @@ fn main() {
     let input = get_input(&format!("day{:02}.txt", day));
     let test = get_input(&format!("day{:02}_test.txt", day));
     
+    if input == None && test == None {
+        eprintln!("No input or test file found for day {}", day);
+        std::process::exit(1);
+    }
+
     if to_run.0 != nop {
         println!("{}", "==== Part 1 ====".cyan());
         run_dayfn(to_run.0, input.clone(), test.clone());
