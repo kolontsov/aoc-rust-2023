@@ -2,11 +2,32 @@ use std::env;
 use std::fs;
 use std::time;
 
-use aoc_rust::{get_day, nop};
+use colored::Colorize;
+use aoc_rust::{DayFn, get_day, nop};
 
 fn usage() -> ! {
     eprintln!("Usage: {} <day>", env::args().nth(0).unwrap());
     std::process::exit(1);
+}
+
+fn get_input(filename: &str) -> Option<String> {
+    let cwd = env::current_dir().unwrap();
+    let filename = cwd.join("inputs").join(filename);
+    fs::read_to_string(filename).ok()
+}
+
+fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>) {
+    if test != None {
+        println!("{}", "<test>".bright_black());
+        dayfn(test.unwrap());
+        println!("{}", "</test>\n".bright_black());
+    }
+    if input != None {
+        println!("{}", "<input>".green());
+        let ts = time::Instant::now();
+        dayfn(input.unwrap());
+        println!("{}", format!("</input> {}ms\n", ts.elapsed().as_millis()).green());
+    }
 }
 
 fn main() {
@@ -25,24 +46,18 @@ fn main() {
         usage();
     });
 
-    let cwd = env::current_dir().unwrap();
-    let filename = cwd.join("inputs").join(format!("day{:02}.txt", day));
-    println!("Reading input from {}", filename.display());
-    let input = fs::read_to_string(filename).expect("Error reading input file").trim().to_string();
-
     let to_run = get_day(day);
+    let input = get_input(&format!("day{:02}.txt", day));
+    let test = get_input(&format!("day{:02}_test.txt", day));
+    
     if to_run.0 != nop {
-        println!("\n== Part 1");
-        let ts = time::Instant::now();
-        to_run.0(input.clone());
-        println!("== {}ms", ts.elapsed().as_millis());
+        println!("{}", "==== Part 1 ====".cyan());
+        run_dayfn(to_run.0, input.clone(), test.clone());
     }
     if to_run.1 != nop {
-        println!("\n== Part 2");
-        let ts = time::Instant::now();
-        to_run.1(input.clone());
-        println!("== {}ms", ts.elapsed().as_millis());
+        println!("{}", "==== Part 2 ====".cyan());
+        run_dayfn(to_run.1, input.clone(), test.clone());
     }
-    println!("\n== Done ==");
+    println!("{}", "DONE".cyan());
 }
 
