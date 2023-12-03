@@ -1,4 +1,4 @@
-pub fn part1(input: String) {
+pub fn part1(input: String) -> u64 {
     let lines = input.split("\n");
     let mut sum = 0;
     for line in lines {
@@ -18,6 +18,7 @@ pub fn part1(input: String) {
     }
 
     println!("TOTAL: {}", sum);
+    sum as u64
 }
 
 fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
@@ -43,7 +44,7 @@ fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
     (first, last)
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: String) -> u64 {
     let mut sum = 0;
     for line in input.lines() {
         if let (Some(first), Some(last)) = get_first_last(line) {        
@@ -53,4 +54,5 @@ pub fn part2(input: String) {
     }
 
     println!("TOTAL: {}", sum);
+    sum as u64
 }

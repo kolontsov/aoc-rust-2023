@@ -54,7 +54,7 @@ fn parse_games(input: &str) -> Vec<Game> {
 }
 
 
-pub fn part1(input: String) {
+pub fn part1(input: String) -> u64{
     let games = parse_games(&input);
 
     let mut sum = 0;
@@ -74,9 +74,10 @@ pub fn part1(input: String) {
         }
     }
     println!("TOTAL: {}", sum);
+    sum as u64
 }
 
-pub fn part2(input: String) {
+pub fn part2(input: String) -> u64 {
     let games = parse_games(&input);
 
     let mut sum = 0;
@@ -96,4 +97,5 @@ pub fn part2(input: String) {
         sum += min_red*min_green*min_blue;
     }
     println!("TOTAL: {}", sum);
+    sum as u64
 }
