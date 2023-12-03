@@ -16,17 +16,19 @@ fn get_input(filename: &str) -> Option<String> {
     fs::read_to_string(filename).ok()
 }
 
-fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>) {
+fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>, test_res: u64) {
     if test != None {
-        println!("{}", "<test>".bright_black());
-        dayfn(test.unwrap());
-        println!("{}", "</test>\n".bright_black());
+        let res = dayfn(test.unwrap());
+        println!("{} {} {}", "<test>".bright_black(), res, "</test>".bright_black());
+        if test_res > 0 && res != test_res {
+            eprintln!("{}: {} was expected", "Test failed".red(), res);
+            std::process::exit(1);
+        }
     }
     if input != None {
-        println!("{}", "<input>".green());
         let ts = time::Instant::now();
-        dayfn(input.unwrap());
-        println!("{}", format!("</input> {}ms\n", ts.elapsed().as_millis()).green());
+        let res = dayfn(input.unwrap());
+        println!("{} {} {}", "<input>".green(), res, format!("</input> ({}ms)", ts.elapsed().as_millis()).green());
     }
 }
 
@@ -56,13 +58,13 @@ fn main() {
     }
 
     if to_run.0 != nop {
-        println!("{}", "==== Part 1 ====".cyan());
-        run_dayfn(to_run.0, input.clone(), test.clone());
+        println!("{}", "\n==== Part 1 ====".cyan());
+        run_dayfn(to_run.0, input.clone(), test.clone(), to_run.2);
     }
     if to_run.1 != nop {
-        println!("{}", "==== Part 2 ====".cyan());
-        run_dayfn(to_run.1, input.clone(), test.clone());
+        println!("{}", "\n==== Part 2 ====".cyan());
+        run_dayfn(to_run.1, input.clone(), test.clone(), to_run.3);
     }
-    println!("{}", "DONE".cyan());
+    println!("{}", "\nDONE".cyan());
 }
 
