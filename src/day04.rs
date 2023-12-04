@@ -33,17 +33,12 @@ pub fn part1(input: String) -> u64 {
     let cards = parse_all(&input);
     let mut total = 0;
     for card in cards.iter() {
-        let mut card_win = 0;
-        for num in card.mine.iter() {
-            if card.winning.contains(num) {
-                if card_win == 0 {
-                    card_win = 1;
-                } else {
-                    card_win *= 2;
-                }
-            }
+        let numbers_won = card.mine.iter()
+            .filter(|num| card.winning.contains(num))
+            .count();
+        if numbers_won > 0 {
+            total += 1<<(numbers_won-1);
         }
-        total += card_win;
     }
     total
 }
@@ -53,9 +48,7 @@ pub fn part2(input: String) -> u64 {
     let len = cards.len();
     for idx in 0..len {
         let card = &cards[idx];
-        let numbers_won = card
-            .mine
-            .iter()
+        let numbers_won = card.mine.iter()
             .filter(|num| card.winning.contains(num))
             .count();
         let n = card.count;
