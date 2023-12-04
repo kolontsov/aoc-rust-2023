@@ -21,7 +21,7 @@ fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>, test_res
         let res = dayfn(test.unwrap());
         println!("{} {} {}", "<test>".bright_black(), res, "</test>".bright_black());
         if test_res > 0 && res != test_res {
-            eprintln!("{}: {} was expected", "Test failed".red(), res);
+            eprintln!("{}: {} was expected", "Test failed".red(), test_res);
             std::process::exit(1);
         }
     }
