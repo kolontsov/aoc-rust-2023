@@ -2,8 +2,8 @@ use std::env;
 use std::fs;
 use std::time;
 
+use aoc_rust::{get_day, nop, DayFn};
 use colored::Colorize;
-use aoc_rust::{DayFn, get_day, nop};
 
 fn usage() -> ! {
     eprintln!("Usage: {} <day>", env::args().nth(0).unwrap());
@@ -19,7 +19,12 @@ fn get_input(filename: &str) -> Option<String> {
 fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>, test_res: u64) {
     if test != None {
         let res = dayfn(test.unwrap());
-        println!("{} {} {}", "<test>".bright_black(), res, "</test>".bright_black());
+        println!(
+            "{} {} {}",
+            "<test>".bright_black(),
+            res,
+            "</test>".bright_black()
+        );
         if test_res > 0 && res != test_res {
             eprintln!("{}: {} was expected", "Test failed".red(), test_res);
             std::process::exit(1);
@@ -28,7 +33,12 @@ fn run_dayfn(dayfn: DayFn, input: Option<String>, test: Option<String>, test_res
     if input != None {
         let ts = time::Instant::now();
         let res = dayfn(input.unwrap());
-        println!("{} {} {}", "<input>".green(), res, format!("</input> ({}ms)", ts.elapsed().as_millis()).green());
+        println!(
+            "{} {} {}",
+            "<input>".green(),
+            res,
+            format!("</input> ({}ms)", ts.elapsed().as_millis()).green()
+        );
     }
 }
 
@@ -41,7 +51,7 @@ fn main() {
     } else {
         usage();
     }
-    
+
     day = day.trim().to_string();
     let day: u32 = day.parse().unwrap_or_else(|_| {
         eprintln!("Invalid day: {}", day);
@@ -51,7 +61,7 @@ fn main() {
     let to_run = get_day(day);
     let input = get_input(&format!("day{:02}.txt", day));
     let test = get_input(&format!("day{:02}_test.txt", day));
-    
+
     if input == None && test == None {
         eprintln!("No input or test file found for day {}", day);
         std::process::exit(1);
@@ -67,4 +77,3 @@ fn main() {
     }
     println!("{}", "\nDONE".cyan());
 }
-

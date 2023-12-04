@@ -5,7 +5,9 @@ pub mod day04;
 
 pub type DayFn = fn(String) -> u64;
 
-pub fn nop(_inp: String) -> u64 { 0 }
+pub fn nop(_inp: String) -> u64 {
+    0
+}
 
 pub fn get_day(day: u32) -> (DayFn, DayFn, u64, u64) {
     return match day {

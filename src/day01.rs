@@ -14,7 +14,7 @@ pub fn part1(input: String) -> u64 {
                 last = c.to_digit(10).unwrap();
             }
         }
-        sum += 10*first+last;
+        sum += 10 * first + last;
     }
 
     println!("TOTAL: {}", sum);
@@ -22,7 +22,9 @@ pub fn part1(input: String) -> u64 {
 }
 
 fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
-    let digits = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    let digits = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ];
     let mut first = None;
     let mut last = None;
 
@@ -33,8 +35,8 @@ fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
             last = Some(value);
         } else {
             for (idx, digit) in digits.iter().enumerate() {
-                if line.get(i..i+digit.len()) == Some(digit) {
-                    let value = (idx as u32)+1;
+                if line.get(i..i + digit.len()) == Some(digit) {
+                    let value = (idx as u32) + 1;
                     first.get_or_insert(value);
                     last = Some(value);
                 }
@@ -47,9 +49,9 @@ fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
 pub fn part2(input: String) -> u64 {
     let mut sum = 0;
     for line in input.lines() {
-        if let (Some(first), Some(last)) = get_first_last(line) {        
+        if let (Some(first), Some(last)) = get_first_last(line) {
             // println!("{} {}", first_num, last_num);
-            sum += 10*first+last;
+            sum += 10 * first + last;
         }
     }
 
