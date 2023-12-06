@@ -18,7 +18,7 @@ pub fn get_day(day: u32) -> (DayFn, DayFn, u64, u64) {
         3 => (day03::part1, day03::part2, 4361, 467835),
         4 => (day04::part1, day04::part2, 13, 30),
         5 => (day05::part1, day05::part2, 35, 0),
-        6 => (day06::part1, day06::part2, 288, 0),
+        6 => (day06::part1, day06::part2, 288, 71503),
         _ => {
             eprintln!("Unknown day: {}", day);
             return (nop, nop, 0, 0);
