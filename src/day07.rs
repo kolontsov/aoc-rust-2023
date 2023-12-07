@@ -121,10 +121,10 @@ pub fn part1(input: String) -> u64 {
     let mut game = parse_game(&input);
     game.sort_by(|(hand1, _), (hand2, _)| hand1.cmp(&hand2));
     let mut total = 0;
-    for (i, (_hand, bid)) in game.iter().enumerate() {
+    for (i, (_, bid)) in game.iter().enumerate() {
         total += bid * (i+1) as u64;
     }
-    total as u64
+    total
 }
 
 pub fn part2(input: String) -> u64 {
