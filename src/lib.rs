@@ -5,6 +5,7 @@ pub mod day04;
 pub mod day05;
 pub mod day06;
 pub mod day07;
+pub mod day08;
 
 pub type DayFn = fn(String) -> u64;
 
@@ -20,7 +21,8 @@ pub fn get_day(day: u32) -> (DayFn, DayFn, u64, u64) {
         4 => (day04::part1, day04::part2, 13, 30),
         5 => (day05::part1, day05::part2, 35, 0),
         6 => (day06::part1, day06::part2, 288, 71503),
-        7 => (day07::part1, day07::part2, 6440, 5905), 
+        7 => (day07::part1, day07::part2, 6440, 5905),
+        8 => (day08::part1, day08::part2, 0, 0), 
         _ => {
             eprintln!("Unknown day: {}", day);
             return (nop, nop, 0, 0);
