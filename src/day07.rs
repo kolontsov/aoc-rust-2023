@@ -42,88 +42,59 @@ enum HandRank {
 }
 
 impl CardHand {
-    fn _rank(&self) -> HandRank {
+    fn rank(&self) -> HandRank {
         use HandRank::*;
-
         let mut counts = HashMap::new();
+        let mut jokers_count = 0;
         for &card in self.cards.iter() {
-            *counts.entry(card).or_insert(0) += 1;
+            if card == CardValue::JOKER {
+                jokers_count += 1;
+            } else {
+                *counts.entry(card).or_insert(0) += 1;
+            } 
         }
         let mut count_vec: Vec<_> = counts.iter().collect();
-        count_vec.sort_by(|a, b| b.1.cmp(a.1).then_with(|| b.0.cmp(a.0)));
-
-        let hand_rank = match (count_vec[0].1, count_vec.get(1).map(|t| t.1)) {
-            (5, _) => FiveOfAKind,
-            (4, _) => FourOfAKind,
-            (3, Some(&2)) => FullHouse,
-            (3, _) => ThreeOfAKind,
-            (2, Some(&2)) => TwoPair,
-            (2, _) => OnePair,
-            _ => HighCard,
+        count_vec.sort_by(|a, b| b.1.cmp(a.1));
+        let hand_rank = match (count_vec.get(0).map(|t| t.1), count_vec.get(1).map(|t| t.1)) {
+            (Some(&5), _) => FiveOfAKind,
+            (Some(&4), _) => match jokers_count {
+                1 => FiveOfAKind,
+                _ => FourOfAKind,
+            }
+            (Some(&3), Some(&2)) => FullHouse,
+            (Some(&3), _) => match jokers_count {
+                1 => FourOfAKind,
+                2 => FiveOfAKind,
+                _ => ThreeOfAKind,
+            }
+            (Some(&2), Some(&2)) => match jokers_count {
+                1 => FullHouse,
+                _ => TwoPair,
+            }
+            (Some(&2), _) => match jokers_count {
+                1 => ThreeOfAKind,
+                2 => FourOfAKind,
+                3 => FiveOfAKind,
+                _ => OnePair,
+            },
+            _ => match jokers_count{
+                5 => FiveOfAKind,
+                4 => FiveOfAKind,
+                3 => FourOfAKind,
+                2 => ThreeOfAKind,
+                1 => OnePair,
+                _ => HighCard,
+            }
         };
-
         hand_rank
     }
-    fn rank(&self) -> HandRank {
-        let mut best_rank = self._rank();
-        let jokers_count = self.cards.iter().filter(|&&card| card == CardValue::JOKER).count();
-
-        if jokers_count > 0 {
-            let card_values = vec![
-                CardValue::_2, CardValue::_3, CardValue::_4, CardValue::_5, 
-                CardValue::_6, CardValue::_7, CardValue::_8, CardValue::_9, 
-                CardValue::T, CardValue::Q, CardValue::K, CardValue::A
-            ];
-
-            // Generate all combinations of card_values taken jokers_count at a time
-            let combinations = generate_combinations(&card_values, jokers_count);
-
-            for combo in combinations {
-                let mut hand_clone = self.cards.clone();
-                
-                let mut combo_iter = combo.iter();
-                for card in hand_clone.iter_mut() {
-                    if *card == CardValue::JOKER {
-                        *card = *combo_iter.next().unwrap_or(&CardValue::_2); // Replace with any value if none left
-                    }
-                }
-
-                let combo_hand = CardHand{ cards: hand_clone };
-                let combo_rank = combo_hand.rank();
-
-                if combo_rank > best_rank {
-                    best_rank = combo_rank;
-                }
-            }
-        }
-
-        best_rank
-    }
-}
-
-fn generate_combinations(card_values: &[CardValue], count: usize) -> Vec<Vec<CardValue>> {
-    if count == 0 {
-        return vec![vec![]];
-    }
-
-    let mut combos: Vec<Vec<CardValue>> = Vec::new();
-    for &value in card_values {
-        // For each card_value, get all combinations for count - 1
-        let sub_combos = generate_combinations(card_values, count - 1);
-        for mut combo in sub_combos {
-            // For each combination, add the current card_value to the front
-            combo.insert(0, value);
-            combos.push(combo);
-        }
-    }
-    combos
 }
 
 impl PartialOrd for CardHand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
-    }
+}
 impl Ord for CardHand {
     fn cmp(&self, other: &Self) -> Ordering {
         self.rank().cmp(&other.rank()).then_with(|| self.cards.cmp(&other.cards))
@@ -131,22 +102,18 @@ impl Ord for CardHand {
 }
 
 fn parse_game(input: &str) -> Vec<(CardHand, u64)> {
-    input.lines()
-        .map(|line| {
-            // println!("Line: {}", line);
-            let (card_part, bid_part) = line.split_once(" ").unwrap();
-            let bid = bid_part.parse().unwrap();
-            let mut cards = [CardValue::A; 5];
-            // println!("- card part: {}", card_part);
-            for (i, c) in card_part.chars().enumerate() {
-                if i>=5 { 
-                    eprintln!("Warning: more than 5 cards in hand: {}", card_part);
-                    std::process::exit(1);
-                }
-                // println!("  - card: {}", c);
-                cards[i] = CardValue::from_char(c).unwrap();
+    input.lines().map(|line| {
+        let (card_part, bid_part) = line.split_once(" ").unwrap();
+        let bid = bid_part.parse().unwrap();
+        let mut cards = [CardValue::A; 5];
+        for (i, c) in card_part.chars().enumerate() {
+            if i>=5 { 
+                eprintln!("Warning: more than 5 cards in hand: {}", card_part);
+                std::process::exit(1);
             }
-            (CardHand { cards }, bid)
+            cards[i] = CardValue::from_char(c).unwrap();
+        }
+        (CardHand { cards }, bid)
     }).collect()
 }
 
@@ -154,20 +121,12 @@ pub fn part1(input: String) -> u64 {
     let mut game = parse_game(&input);
     game.sort_by(|(hand1, _), (hand2, _)| hand1.cmp(&hand2));
     let mut total = 0;
-    for (i, (hand, bid)) in game.iter().enumerate() {
-        println!("Hand {}: {:?}, bid: {}, rank: {:?}", i, hand.cards, bid, hand.rank());
+    for (i, (_hand, bid)) in game.iter().enumerate() {
         total += bid * (i+1) as u64;
     }
     total as u64
 }
 
 pub fn part2(input: String) -> u64 {
-    let mut game = parse_game(&input.replace("J", "*"));
-    game.sort_by(|(hand1, _), (hand2, _)| hand1.cmp(&hand2));
-    let mut total = 0;
-    for (i, (hand, bid)) in game.iter().enumerate() {
-        println!("Hand {}: {:?}, bid: {}, rank: {:?}", i, hand.cards, bid, hand.rank());
-        total += bid * (i+1) as u64;
-    }
-    total as u64
+    part1(input.replace("J", "*"))
 }
