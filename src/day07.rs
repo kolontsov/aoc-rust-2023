@@ -32,7 +32,7 @@ struct CardHand {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum HandRank {
-    HighCard = 0,
+    HighCard,
     OnePair,
     TwoPair,
     ThreeOfAKind,
