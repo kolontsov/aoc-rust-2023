@@ -108,7 +108,7 @@ fn parse_game(input: &str) -> Vec<(CardHand, u64)> {
         let mut cards = [CardValue::A; 5];
         for (i, c) in card_part.chars().enumerate() {
             if i>=5 { 
-                eprintln!("Warning: more than 5 cards in hand: {}", card_part);
+                eprintln!("More than 5 cards in hand: {}", card_part);
                 std::process::exit(1);
             }
             cards[i] = CardValue::from_char(c).unwrap();
