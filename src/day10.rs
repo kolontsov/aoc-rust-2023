@@ -100,7 +100,7 @@ impl Map {
         for y in (2..self.height).step_by(2) {
             for x in (2..self.width).step_by(2) {
                 let tile = &self.tiles[y][x];
-                let s = self.beautify(tile.ch).to_string();
+                let s = self._beautify(tile.ch).to_string();
                 
                 print!("{}", if tile.on { 
                     s.green()
