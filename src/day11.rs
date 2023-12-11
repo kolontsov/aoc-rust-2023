@@ -11,6 +11,8 @@ struct Tile {
     ch: char,
 }
 
+type XY = (usize, usize);
+
 impl Map {
     fn new(width: usize, height: usize) -> Map {
         let tiles = vec![vec![Tile { ch: '.' }; width]; height];
@@ -75,6 +77,7 @@ impl Map {
             }
             println!();
         }
+        println!();
     }
     fn find_iter<'a>(&'a self, ch: char) -> impl Iterator<Item = (usize, usize)> + 'a {
         self.tiles.iter().enumerate().flat_map(move |(y, row)| {
@@ -89,12 +92,65 @@ impl Map {
     }
 }
 
+fn expand_universe(map: &mut Map) {
+    for y in (0..map.height).rev() {
+        let row = map.get_row(y);
+        if row.iter().all(|tile| tile.ch == '.') {
+            map.insert_row(y, row)
+        }
+    };
+    for x in (0..map.width).rev() {
+        let column = map.get_column(x);
+        if column.iter().all(|tile| tile.ch == '.') {
+            map.insert_column(x, column)
+        }
+    };
+}
+
+fn unique_pairs<T: Clone>(items: Vec<T>) -> Vec<(T, T)> {
+    let mut pairs = Vec::new();
+    for (i, item1) in items.iter().enumerate() {
+        for item2 in items.iter().skip(i + 1) {
+            pairs.push((item1.clone(), item2.clone()));
+        }
+    }
+    pairs
+}
+
+fn dist(&(x1, y1): &XY, &(x2, y2): &XY) -> u64 {
+    ((x1 as isize - x2 as isize).abs() + (y1 as isize - y2 as isize).abs()) as u64
+}
 
 pub fn part1(input: String) -> u64 {
     let mut map = Map::from_str(&input);
-    map.show();
-    for (x, y) in map.find_iter('#') {
-        println!("Found S at ({}, {})", x, y);
-    }
-    map.width as u64
+    expand_universe(&mut map);
+    // map.show();
+    let galaxies: Vec<XY> = map.find_iter('#').collect();
+    // println!("Galaxies: {:?}", galaxies);
+    let pairs: Vec<(XY, XY)> = unique_pairs(galaxies);
+    // println!("Pairs: {:?}", pairs.len());
+    pairs.iter().map(|(p1, p2)| dist(p1, p2)).sum()
 }
+
+pub fn part2(input: String) -> u64 {
+    let map = Map::from_str(&input);
+    let mut galaxies: Vec<XY> = map.find_iter('#').collect();
+    
+    let factor: usize = 999_999;
+    let is_empty = |tiles: &[Tile]| tiles.iter().all(|tile| tile.ch == '.');
+    
+    for y in (0..map.height).rev() {
+        if is_empty(&map.get_row(y)) {
+            galaxies.iter_mut().filter(|p| p.1>y).for_each(|p| p.1 += factor);
+        }
+    };
+
+    for x in (0..map.width).rev() {
+        if is_empty(&map.get_column(x)) {
+            galaxies.iter_mut().filter(|p| p.0>x).for_each(|p| p.0 += factor);
+        }
+    };
+
+    unique_pairs(galaxies).iter().map(|(p1, p2)| dist(p1, p2)).sum()
+}
+
