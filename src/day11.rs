@@ -76,18 +76,25 @@ impl Map {
             println!();
         }
     }
+    fn find_iter<'a>(&'a self, ch: char) -> impl Iterator<Item = (usize, usize)> + 'a {
+        self.tiles.iter().enumerate().flat_map(move |(y, row)| {
+            row.iter().enumerate().filter_map(move |(x, tile)| {
+                if tile.ch == ch {
+                    Some((x, y))
+                } else {
+                    None
+                }
+            })
+        })
+    }
 }
 
 
 pub fn part1(input: String) -> u64 {
     let mut map = Map::from_str(&input);
     map.show();
-    let t = map.get_column(1);
-    map.insert_column(0, t);
-    let d = map.get_row(0);
-    map.insert_row(10, d);
-    //map.remove_row(9);
-    //map.remove_column(0);
-    map.show();
+    for (x, y) in map.find_iter('#') {
+        println!("Found S at ({}, {})", x, y);
+    }
     map.width as u64
 }
