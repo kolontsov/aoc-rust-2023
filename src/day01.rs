@@ -21,40 +21,24 @@ pub fn part1(input: String) -> u64 {
     sum as u64
 }
 
-fn get_first_last(line: &str) -> (Option<u32>, Option<u32>) {
-    let digits = [
-        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    ];
-    let mut first = None;
-    let mut last = None;
+fn get_num(line: &str) -> u32 {
+    let digits = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine" ];
+    let mut numbers = Vec::new();
 
     for (i, ch) in line.char_indices() {
         if ch.is_digit(10) {
-            let value = ch.to_digit(10).unwrap();
-            first.get_or_insert(value);
-            last = Some(value);
+            numbers.push(ch.to_digit(10).unwrap());
         } else {
             for (idx, digit) in digits.iter().enumerate() {
                 if line.get(i..i + digit.len()) == Some(digit) {
-                    let value = (idx as u32) + 1;
-                    first.get_or_insert(value);
-                    last = Some(value);
+                    numbers.push((idx as u32) + 1);
                 }
             }
         }
     }
-    (first, last)
+    numbers.first().unwrap() * 10 + numbers.last().unwrap()
 }
 
 pub fn part2(input: String) -> u64 {
-    let mut sum = 0;
-    for line in input.lines() {
-        if let (Some(first), Some(last)) = get_first_last(line) {
-            // println!("{} {}", first_num, last_num);
-            sum += 10 * first + last;
-        }
-    }
-
-    println!("TOTAL: {}", sum);
-    sum as u64
+    input.lines().map(get_num).sum::<u32>() as u64
 }
