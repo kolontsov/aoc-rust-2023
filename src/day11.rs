@@ -13,6 +13,7 @@ struct Tile {
 
 type XY = (usize, usize);
 
+#[allow(dead_code)]
 impl Map {
     fn new(width: usize, height: usize) -> Map {
         let tiles = vec![vec![Tile { ch: '.' }; width]; height];
@@ -91,6 +92,7 @@ impl Map {
         })
     }
 }
+#[warn(dead_code)]
 
 fn expand_universe(map: &mut Map) {
     for y in (0..map.height).rev() {
