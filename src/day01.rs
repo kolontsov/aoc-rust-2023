@@ -36,9 +36,12 @@ fn get_num(line: &str) -> u32 {
             }
         }
     }
+    assert!(numbers.len() >= 2);
     numbers.first().unwrap() * 10 + numbers.last().unwrap()
 }
 
 pub fn part2(input: String) -> u64 {
     input.lines().map(get_num).sum::<u32>() as u64
 }
+
+
