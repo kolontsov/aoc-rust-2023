@@ -64,12 +64,14 @@ pub fn part2(input: String) -> u64 {
             rotate90(&mut map);
             data[i] = calc_load(&map);
         }
-        if let Some(start) = history.iter().position(|&x| x == data) {
-            let loop_size = i - start;
-            let offset = start + (MAX_CYCLES-start-1) % loop_size;
-            return history[offset][3] as u64;
+        match history.iter().position(|&x| x == data) {
+            None => history.push(data),
+            Some(start) => {
+                let loop_size = i - start;
+                let offset = start + (MAX_CYCLES-start-1) % loop_size;
+                return history[offset][3] as u64;
+            }
         }
-        history.push(data);
     }
     unreachable!()
 }
