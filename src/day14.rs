@@ -57,7 +57,7 @@ const MAX_CYCLES : usize = 1_000_000_000;
 pub fn part2(input: String) -> u64 {
     let mut map = parse_input(&input);
     let mut history: Vec<[u32; 4]> = Vec::new();
-    for i in 0..MAX_CYCLES {
+    for _ in 0..MAX_CYCLES {
         let mut data = [0; 4];
         for i in 0..4 {
             tilt_north(&mut map);
@@ -67,7 +67,7 @@ pub fn part2(input: String) -> u64 {
         match history.iter().position(|&x| x == data) {
             None => history.push(data),
             Some(start) => {
-                let loop_size = i - start;
+                let loop_size = history.len() - start;
                 let offset = start + (MAX_CYCLES-start-1) % loop_size;
                 return history[offset][3] as u64;
             }
