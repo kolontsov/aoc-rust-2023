@@ -57,7 +57,7 @@ const MAX_CYCLES : usize = 1_000_000_000;
 pub fn part2(input: String) -> u64 {
     let mut map = parse_input(&input);
     let mut history: Vec<[u32; 4]> = Vec::new();
-    for _ in 0..MAX_CYCLES {
+    loop {
         let mut data = [0; 4];
         for i in 0..4 {
             tilt_north(&mut map);
@@ -73,5 +73,4 @@ pub fn part2(input: String) -> u64 {
             }
         }
     }
-    unreachable!()
 }
