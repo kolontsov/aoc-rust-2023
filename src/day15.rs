@@ -41,9 +41,10 @@ pub fn part2(input: String) -> u64 {
         let vec = &mut boxes[hash(&cmd.prefix) as usize];
         match cmd.op {
             CmdOp::Set => {
-                match vec.iter().position(|(p, _)| *p == cmd.prefix) {
-                    Some(pos) => vec[pos].1 = cmd.arg.unwrap(),
-                    None => vec.push((cmd.prefix, cmd.arg.unwrap())),
+                match (vec.iter().position(|(p, _)| *p == cmd.prefix), cmd.arg) {
+                    (Some(pos), Some(arg)) => vec[pos].1 = arg,
+                    (None,      Some(arg)) => vec.push((cmd.prefix, arg)),
+                    _ => unreachable!()
                 }
             },
             CmdOp::Remove => {
