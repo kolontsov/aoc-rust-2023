@@ -43,7 +43,7 @@ pub fn part2(input: String) -> u64 {
             CmdOp::Set => {
                 match (vec.iter().position(|(p, _)| *p == cmd.prefix), cmd.arg) {
                     (Some(pos), Some(arg)) => vec[pos].1 = arg,
-                    (None,      Some(arg)) => vec.push((cmd.prefix, arg)),
+                    (None, Some(arg)) => vec.push((cmd.prefix, arg)),
                     _ => unreachable!()
                 }
             },
