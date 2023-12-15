@@ -1,12 +1,9 @@
+use lazy_static::lazy_static;
 use regex::Regex;
 use linked_hash_map::LinkedHashMap;
 
 fn hash(str: &str) -> u8 {
-    let mut total: u8 = 0;
-    for c in str.chars() {
-        total = total.wrapping_add(c as u8).wrapping_mul(17);
-    }
-    total
+    str.chars().fold(0, |acc, c| acc.wrapping_add(c as u8).wrapping_mul(17))
 }
 
 pub fn part1(input: String) -> u64 {
@@ -21,9 +18,12 @@ struct Cmd<'a> {
     arg: Option<u64>
 }
 
+lazy_static! {
+    static ref RE: Regex = Regex::new(r"^([a-zA-Z]+)([-=])(\d+)?$").unwrap();
+}
+
 fn parse_cmd(input: &str) -> Cmd {
-    let re = Regex::new(r"^([a-zA-Z]+)([-=])(\d+)?$").unwrap();
-    let cap = re.captures(input).expect("Incorrect cmd format");
+    let cap = RE.captures(input).expect("Incorrect cmd format");
 
     let prefix = cap.get(1).expect("Missing prefix").as_str();
     let op = match cap.get(2).expect("Missing op").as_str() {
@@ -52,3 +52,4 @@ pub fn part2(input: String) -> u64 {
         })
     }).sum()
 }
+
