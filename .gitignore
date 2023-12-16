@@ -1,4 +1,4 @@
 /target
-flamegraph.svc
+flamegraph.svg
 Cargo.lock
 *.rs.bk
