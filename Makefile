@@ -9,6 +9,4 @@ flame:
 	open -a Firefox flamegraph.svg
 
 clean:
-	rm -rf target/ Cargo.lock
-
-
+	rm -rf target/ Cargo.lock flamegraph.svg
