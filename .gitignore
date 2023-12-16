@@ -1,3 +1,4 @@
 /target
+flamegraph.svc
 Cargo.lock
 *.rs.bk
