@@ -80,8 +80,6 @@ pub fn part1(input: String) -> u64 {
 pub fn part2(input: String) -> u64 {
     let mut total = 0;
     for (_, line) in input.lines().enumerate() {
-        //if i!=5  { continue; }
-
         let (chars, groups) = parse_input(&line);
 
         let mut chars2: Vec<char> = Vec::new();
