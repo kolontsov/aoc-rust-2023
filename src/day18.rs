@@ -55,14 +55,14 @@ fn get_area(instructions: &Vec<Instruction>) -> i64 {
         path.push((x, y));
         perimeter += instr.steps;
     }
-    // shoelace formulla
+    // shoelace formula
     let mut area = 0;
-    for i in 0..path.len()-2 {
+    for i in 0..path.len()-1 {
         let (x0, y0) = path[i];
         let (x1, y1) = path[i+1];
         area += x0 * y1 - x1 * y0;
     }
-    
+
     area.abs() / 2 + perimeter / 2 + 1
 }
 
