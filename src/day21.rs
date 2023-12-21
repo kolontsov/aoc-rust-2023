@@ -50,7 +50,7 @@ pub fn part1(input: String) -> u64 {
     // skip test
     if map.width < 100 { return 0; }
 
-    for _ in 0..128 {
+    for _ in 0..64 {
         let mut new_pos: HashSet<Point> = HashSet::new();
         for pos in cur_pos.drain(..) {
             for npos in map.get_moves(pos) {
