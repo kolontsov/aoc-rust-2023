@@ -1,92 +1,119 @@
-type Point = (usize, usize);
+use nalgebra::{DMatrix, DVector};
+use std::collections::HashSet;
+
+type Point = (isize, isize);
 struct Map {
     width: usize,
-    height: usize,
+    _height: usize,
     tiles: Vec<Vec<char>>,
-    visited: Vec<Point>,
 }
 
 impl Map {
     fn from_str(input: &str) -> Map {
         let tiles: Vec<Vec<char>> = input.lines().map(|line| { line.chars().collect()}).collect();
-        let height = tiles.len();
+        let _height = tiles.len();
         let width = tiles.first().map_or(0, |row| row.len());
-        Map { width, height, tiles, visited: Vec::new() }
+        Map { width, _height, tiles }
     }
-    fn find_char(&self, needle: char) -> (usize, usize) {
+    fn find_char(&self, needle: char) -> (isize, isize) {
         for (y, row) in self.tiles.iter().enumerate() {
             for (x, ch) in row.iter().enumerate() {
                 if *ch == needle {
-                    return (x, y);
+                    return (x as isize, y as isize);
                 }
             }
         }
         panic!("No start position");
     }
-    fn get(&self, pos: Point) -> char {
+    fn translate(&self, pos: Point) -> (usize, usize) {
         let (x, y) = pos;
+        let width = self.width as isize;
+        let rx = (x % width + width) % width;
+        let ry = (y % width + width) % width;
+        (rx as usize, ry as usize)
+    }
+    fn get(&self, pos: Point) -> char {
+        let (x, y) = self.translate(pos);
         self.tiles[y][x]
-    }
-    fn is_visited(&self, pos: Point) -> bool {
-        self.visited.contains(&pos)
-    }
-    fn visit(&mut self, pos: Point) {
-        self.visited.push(pos);
     }
     fn get_moves(&self, pos: Point) -> Vec<Point> {
         let (x, y) = pos;
-        let mut result = Vec::new();
-        if x>0 {
-            result.push((x-1, y));
-        }
-        if x<self.width-1 {
-            result.push((x+1, y));
-        }
-        if y>0 {
-            result.push((x, y-1));
-        }
-        if y<self.height-1 {
-            result.push((x, y+1));
-        }
-        result.iter().filter(|&pos|
-            !self.is_visited(*pos) && self.get(*pos) == '.'
-        ).copied().collect()
-    }
-    fn show(&self) {
-        for (y, row) in self.tiles.iter().enumerate() {
-            for (x, ch) in row.iter().enumerate() {
-                print!("{}", if self.is_visited((x, y)) { 'O' } else { *ch });
-            }
-            println!();
-        }
+        let moves = vec![(x-1, y), (x+1, y), (x, y-1), (x, y+1)];
+        moves.iter().filter(|&pos| self.get(*pos) != '#').copied().collect()
     }
 }
 
 pub fn part1(input: String) -> u64 {
-    let mut map = Map::from_str(&input);
+    let map = Map::from_str(&input);
     let mut cur_pos: Vec<Point> = vec![map.find_char('S')];
-    map.tiles[cur_pos[0].1][cur_pos[0].0] = '.';
-    for _ in 0..64 {
-        let mut new_pos = Vec::new();
+    
+    // skip test
+    if map.width < 100 { return 0; }
+
+    for _ in 0..128 {
+        let mut new_pos: HashSet<Point> = HashSet::new();
         for pos in cur_pos.drain(..) {
             for npos in map.get_moves(pos) {
-                if !new_pos.contains(&npos) {
-                    new_pos.push(npos);
-                }
+                new_pos.insert(npos);
             }
         }
-        cur_pos.append(&mut new_pos);
-        // for (y, row) in map.tiles.iter().enumerate() {
-        //     for (x, ch) in row.iter().enumerate() {
-        //         print!("{}", if cur_pos.contains(&(x, y)) { 'O' } else { *ch });
-        //     }
-        //     println!();
-        // }
-        // println!("----------------");
+        cur_pos.extend(new_pos); 
     }
     cur_pos.len() as u64
 }
 
 pub fn part2(input: String) -> u64 {
-    input.len() as u64
+    let map = Map::from_str(&input);
+    // skip test
+    if map.width < 100 { return 0; }
+
+    // 202300 * 131 + 65, where 131 is map width
+    let max_steps = 26501365;
+    let mut cur_pos: Vec<Point> = vec![map.find_char('S')];
+    
+    let mut res: Vec<u64> = vec![];
+    let mut i=0;
+    loop {
+        let mut new_pos: HashSet<Point> = HashSet::new();
+        for pos in cur_pos.drain(..) {
+            for npos in map.get_moves(pos) {
+                new_pos.insert(npos);
+            }
+        }
+        cur_pos.extend(new_pos); 
+        i += 1;
+
+        if i%map.width == max_steps%map.width  {
+             println!("iter {}, val {}", i, cur_pos.len());
+             res.push(cur_pos.len() as u64);
+             if res.len()==3 {
+                break;
+            }
+        }
+    }
+
+    // solve system of quadratic equations
+    let x: [f64; 3] = [0.0, 1.0, 2.0];
+    let y: Vec<f64> = res.iter().map(|x| *x as f64).collect();
+
+    let a_matrix = DMatrix::from_row_slice(3, 3, &[
+        x[0].powi(2), x[0], 1.0,
+        x[1].powi(2), x[1], 1.0,
+        x[2].powi(2), x[2], 1.0,
+    ]);
+
+    let b_vector = DVector::from_column_slice(&y);
+    match a_matrix.clone().lu().solve(&b_vector) {
+        Some(solution) => {
+            let a = solution[0] as u64;
+            let b = solution[1] as u64;
+            let c = solution[2] as u64;
+            println!("Quadratic polynomial coefficients: a = {a}, b = {b}, c = {c}");
+
+            let x = (max_steps/map.width) as u64;
+            return a*x*x + b*x + c
+        },
+        None => println!("Can't solve equations system"),
+    }
+    unreachable!()
 }
