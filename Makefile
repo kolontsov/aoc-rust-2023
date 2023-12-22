@@ -1,3 +1,5 @@
+export RUST_BACKTRACE := 1
+
 all:
 	cargo run $(shell date +%d)
 
