@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 struct Map {
     width: usize,
     height: usize,
@@ -78,37 +80,34 @@ impl Pos {
 fn dfs<F, G>(start: Pos, successors: F, is_final: G) -> u64
 where
     F: Fn(Pos) -> Vec<Pos>,
-    G: Fn(Pos) -> bool,
+    G: Fn(&Pos) -> bool,
 {
-    let mut stack = vec![(start, Vec::new())];
+    let mut stack = vec![(start, 0, HashSet::new())];
     let mut max_len = 0;
 
-    while let Some((pos, path)) = stack.pop() {
-        if is_final(pos) {
-            max_len = max_len.max(path.len() as u64);
+    while let Some((pos, cur_len, mut visited)) = stack.pop() {
+        if !visited.insert(pos) {
+            continue;
+        }
+        if is_final(&pos) {
+            max_len = max_len.max(cur_len);
+            // println!("Found path of length {}", max_len);
         } else {
             for next_pos in successors(pos) {
-                if !path.contains(&next_pos) {
-                    let mut new_path = path.clone();
-                    new_path.push(next_pos);
-                    stack.push((next_pos, new_path));
+                if !visited.contains(&next_pos) {
+                    stack.push((next_pos, cur_len + 1, visited.clone()));
                 }
             }
         }
     }
-    max_len
-}
-
-fn find_max_path_len(map: &Map) -> u64 {
-    let dist = dfs(Pos{ x: 1, y: 0 },
-        |p| p.successors(&map),
-        |p| p.is_final(&map));
-    dist
+    max_len as u64
 }
 
 pub fn part1(input: String) -> u64 {
     let map = Map::from_str(&input);
-    find_max_path_len(&map)
+    dfs(Pos{ x: 1, y: 0 },
+        |p| p.successors(&map),
+        |p| p.is_final(&map))
 }
 
 pub fn part2(_: String) -> u64 {
