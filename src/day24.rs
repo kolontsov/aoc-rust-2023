@@ -70,6 +70,20 @@ pub fn part1(input: String) -> u64 {
     cnt as u64
 }
 
-pub fn part2(_input: String) -> u64 {
+pub fn part2(input: String) -> u64 {
+    let hails = parse_input(&input);
+    // print matlab code (yes, I'm lazy)
+    let vars = "x y z vx vy vz t0 t1 t2";
+    println!("syms {}", vars);
+    println!("eqs = [");
+    for i in 0..3 {
+        let (pos, vel) = hails[i];
+        println!("{} + {} * t{} == t{} * vx + x,", pos.x, vel.x, i, i);
+        println!("{} + {} * t{} == t{} * vy + y,", pos.y, vel.y, i, i);
+        println!("{} + {} * t{} == t{} * vz + z,", pos.z, vel.z, i, i);
+    }
+    println!("];");
+    println!("S = solve(eqs, [{}]);", vars);
+    println!("S.x + S.y + S.z");
     0
 }
